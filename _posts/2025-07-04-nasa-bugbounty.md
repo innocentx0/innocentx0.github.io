@@ -81,7 +81,7 @@ The result: **~10 GB of files**.
 ---
 
 ## File Scanning and Thinking Outside the Box
-
+Grep was my best friend. At this point, my eyes were 90% links and 10% caffeine.
 I wrote a script to **grep everything**, targeting:
 
 - `password`, `user`, `admin`
@@ -98,7 +98,7 @@ After 2 days, I had a thought:
 
 ---
 
-## The Big Brain Moment: FTP Discovery
+## FTP Discovery
 
 Yup: **FTP**.
 
