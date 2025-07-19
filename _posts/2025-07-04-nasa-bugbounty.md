@@ -7,12 +7,13 @@ tags: [Bug bounty, NASA Hacking, Hacking]
 
 # How I Hacked NASA and Scored a Killer LOR
 
-Today, I’m going to tell you one of my story: **how I hacked NASA**. Yep, you heard that right. The NASA. The space agency that sends rovers to Mars and makes us dream of the stars? They got owned by me. And the cherry on top? I got a **Letter of Recognition (LOR)** straight from them.  
-But trust me, behind this tale lies weeks of madness — recon, scripts, insane bugs, and a whole lot of craziness.
+Today, I’m going to tell you one of my story: **how I hacked NASA**. Yep, you heard that right. The NASA. The space agency that sends rovers to Mars and makes us dream of the stars? They got owned by me. 
+I got a **Letter of Recognition (LOR)** straight from them.  
+But trust me, behind this tale lies weeks of madness, recon, scripts, insane bugs, and a whole lot of craziness.
 
 ---
 
-## My NASA Bug Hunt: A Dozen Mind-Blowing Vulnerabilities
+## My NASA Bug Hunt: A Dozen Vulnerabilities
 
 I found around **ten bugs** in their systems, stuff straight out of a movie. I’m talking about:
 
@@ -21,9 +22,9 @@ I found around **ten bugs** in their systems, stuff straight out of a movie. I�
 - Employee personal data (**PII included**)
 - **Classified documents**, top-secret research marked as **reserved**
 
-One of the craziest simple bugs?  
-A NASA site protected by **Basic Auth** — I bypassed it just by **tweaking the HTTP request header**.  
-No brute force. No magic. One crafted header = full access.
+One of the craziest and simplest bugs?  
+A NASA site protected by **Basic Auth** , I bypassed it just by **tweaking the HTTP request header**.  
+No brute force. No magic. One crafted header, full access.
 
 ---
 
@@ -31,7 +32,7 @@ No brute force. No magic. One crafted header = full access.
 
 This deserves its own spotlight.
 
-I spent **a week** preparing the attack, days of recon, endless data review — until one day, buried in **10 GB of scraped data**, I found *the link*.  
+I spent **a week** preparing the attack, days of recon, endless data review, until one day, buried in **10 GB of scraped data**, I found *the link*.  
 The one that wasn’t supposed to exist.
 
 ---
@@ -163,7 +164,7 @@ This adventure was a perfect blend of:
 ---
 
 Thanks for reading, hope you had fun! :)
-Happy hacking. 💻🌌
+Happy hacking. 💻
 
 ---
 
