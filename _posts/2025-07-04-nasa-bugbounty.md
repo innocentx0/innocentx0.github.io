@@ -7,36 +7,36 @@ tags: [Bug bounty, NASA Hacking, Hacking]
 
 # How I Hacked NASA and Scored a Killer LOR 🚀👨‍💻
 
-Today, I’m going to tell you an insane story — a legendary hacker tale: **how I hacked NASA**. Yep, you heard that right. The NASA. The space agency that sends rovers to Mars and makes us dream of the stars? They got owned by me. And the cherry on top? I got a **Letter of Recognition (LOR)** straight from them.  
-But trust me, behind this epic tale lies weeks of madness — recon, scripts, insane bugs, and a whole lot of craziness.
+Today, I’m going to tell you one of my story: **how I hacked NASA**. Yep, you heard that right. The NASA. The space agency that sends rovers to Mars and makes us dream of the stars? They got owned by me. And the cherry on top? I got a **Letter of Recognition (LOR)** straight from them.  
+But trust me, behind this tale lies weeks of madness — recon, scripts, insane bugs, and a whole lot of craziness.
 
 ---
 
-## 🐛 My NASA Bug Hunt: A Dozen Mind-Blowing Vulnerabilities
+## My NASA Bug Hunt: A Dozen Mind-Blowing Vulnerabilities
 
-I found around **ten bugs** in their systems — stuff straight out of a movie. I’m talking about:
+I found around **ten bugs** in their systems, stuff straight out of a movie. I’m talking about:
 
-- Accessing **super sensitive APIs**
+- Accessing **sensitive APIs**
 - Leaking **locations of all NASA bases**
 - Employee personal data (**PII included**)
 - **Classified documents**, top-secret research marked as **reserved**
 
-One of the craziest bugs?  
+One of the craziest simple bugs?  
 A NASA site protected by **Basic Auth** — I bypassed it just by **tweaking the HTTP request header**.  
 No brute force. No magic. One crafted header = full access.
 
 ---
 
-## 🏆 The Bug That Earned Me the LOR
+## The Bug That Earned Me the LOR
 
 This deserves its own spotlight.
 
-I spent **a week** preparing the attack, days of recon, endless data review — until one day, buried in **8 GB of scraped data**, I found *the link*.  
+I spent **a week** preparing the attack, days of recon, endless data review — until one day, buried in **10 GB of scraped data**, I found *the link*.  
 The one that wasn’t supposed to exist.
 
 ---
 
-## 🔍 How I Started: Recon Mode Activated
+## How I Started: Recon Mode Activated
 
 ### 1. Subdomain Enumeration
 
@@ -54,17 +54,17 @@ Used `httpx-toolkit` to check which domains were still active.
 ### 3. Dual-Method Link Scraping
 
 - **Active method:**  
-  My own spider, `Reconspyder`, built with `Scrapy`, did:
+  Tools like: , `Reconspyder`, built with `Scrapy`, and did:
   - Directory fuzzing
   - Page enumeration
-  - Analysis via `GAU`, `linkfinder`
+  - Analysis via `GAU`, `linkfinder` and more
 
 - **Passive method:**  
   The secret sauce: **WayBackMachine**.
 
 ---
 
-## 📜 What Is the WayBackMachine (And Why Hackers Should Use It)
+## What Is the WayBackMachine (And Why Hackers Should Use It)
 
 The **WayBackMachine** is basically a **time machine for the web**.  
 It archives snapshots of websites across time.  
@@ -80,7 +80,7 @@ The result: **~10 GB of files**.
 
 ---
 
-## 🧪 File Scanning and Thinking Outside the Box
+## File Scanning and Thinking Outside the Box
 
 I wrote a script to **grep everything**, targeting:
 
@@ -98,7 +98,7 @@ After 2 days, I had a thought:
 
 ---
 
-## 🧠 The Big Brain Moment: FTP Discovery
+## The Big Brain Moment: FTP Discovery
 
 Yup: **FTP**.
 
@@ -106,7 +106,7 @@ I grepped for `ftp`, and I found this gem:
 
 ---
 
-## 🚫 The Forbidden Page
+## The Forbidden Page
 
 The page displayed this warning:
 
@@ -118,9 +118,9 @@ But I wasn’t done.
 
 ---
 
-## 🧵 Down the Rabbit Hole: Cached Treasures
+## Down the Rabbit Hole: Cached Treasures
 
-Digging deeper into WayBackMachine, I uncovered **tons of cached links**:
+Digging deeper into WayBackMachine, I uncovered **tons of cached links** related to this domain:
 
 - Ongoing NASA **research projects**
 - **3D models** of satellites and rovers
@@ -133,19 +133,18 @@ All just sitting there. Waiting to be seen.
 
 ---
 
-## 📬 Reporting the Bug and Receiving the LOR
+## Reporting the Bug and Receiving the LOR
 
 After gathering all my findings, I submitted a clean and detailed report to NASA’s bug bounty team.
 
 - **Severity:** P3  
-- **Impact:** High  
 - **Result:** An **official Letter of Recognition** from the agency.
 
 Mission accomplished. ✅
 
 ---
 
-## 🧠 Final Thoughts
+## Final Thoughts
 
 This adventure was a perfect blend of:
 
@@ -155,7 +154,7 @@ This adventure was a perfect blend of:
 - Attention to detail  
 - A pinch of madness
 
-### 🔑 Key Lessons:
+### Key Lessons:
 - Recon is king  
 - The **WayBackMachine** is an underrated weapon  
 - Think like the target  
@@ -163,11 +162,7 @@ This adventure was a perfect blend of:
 
 ---
 
-## 🚀 To the Stars (and Bugs) Beyond
-
-Now? I still watch the stars…  
-But with my keyboard ready for the next space-borne vulnerability.
-
+Thanks for reading, hope you had fun! :)
 Happy hacking. 💻🌌
 
 ---
