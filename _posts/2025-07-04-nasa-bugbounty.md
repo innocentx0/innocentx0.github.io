@@ -46,7 +46,7 @@ Used:
 - `subfinder`
 - `assetsfinder`
 
-Found **dozens** of subdomains.
+Found **endless amounts** of subdomains.
 
 ### 2. Liveness Check
 
@@ -104,6 +104,7 @@ After 2 days, I had a thought:
 Yup: **FTP**.
 
 I grepped for `ftp`, and I found this gem:
+something similiar to this: airs****.company1.nasa.gov/user/data/ftp/
 
 ---
 
@@ -121,7 +122,7 @@ But I wasn’t done.
 
 ## Down the Rabbit Hole: Cached Treasures
 
-Digging deeper into WayBackMachine, I uncovered **tons of cached links** related to this domain:
+Digging deeper into WayBackMachine, I uncovered **tons of cached links** such as "airs***.company1.nasa.gov/user/data/ftp/project.hdf5 , all related to this domain:
 
 - Ongoing NASA **research projects**
 - **3D models** of satellites and rovers
@@ -164,7 +165,7 @@ This adventure was a perfect blend of:
 ---
 
 Thanks for reading, hope you had fun! :)
-Happy hacking. 💻
+Happy hacking.
 
 ---
 
