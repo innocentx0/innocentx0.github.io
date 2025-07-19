@@ -1,11 +1,11 @@
 ---
-title: "How I Hacked NASA and Scored a Killer LOR 🚀"
+title: "How I Hacked NASA and Scored a Killer LOR"
 date: 2025-07-19 00:00:00 +0800
 categories: [Bug bounty, hacking]
 tags: [Bug bounty, NASA Hacking, Hacking]
 --- 
 
-# How I Hacked NASA and Scored a Killer LOR 🚀👨‍💻
+# How I Hacked NASA and Scored a Killer LOR
 
 Today, I’m going to tell you one of my story: **how I hacked NASA**. Yep, you heard that right. The NASA. The space agency that sends rovers to Mars and makes us dream of the stars? They got owned by me. And the cherry on top? I got a **Letter of Recognition (LOR)** straight from them.  
 But trust me, behind this tale lies weeks of madness — recon, scripts, insane bugs, and a whole lot of craziness.
