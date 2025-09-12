@@ -6,13 +6,13 @@ tags: [ctf, walkthrought, hacking, penetration testing]
 --- 
 
 ## Blackfield Machine Walkthrought
-Hello everyone, this is my first machine walktrought on my personal blog site.
-Since i have studied for OSCP, i started doing some boxes that can be' close to the exam to prove and sharpen my skills,
-as a result, here you will not only find a clear walktrought, 
-but also points where i've been stuck and had to "try harder" and dig in my memories :)
+Hello everyone, this is my first machine walkthrough on my personal blog site.
+Since I’ve been studying for the OSCP, I started working on boxes that resemble the exam to prove and sharpen my skills.
+As a result, here you will not only find a clear walkthrough,
+but also the points where I got stuck and had to “try harder” and dig into my memory. :)
 
 This is an hard box playable on HackTheBox
-If you wanna play it while following along , here is the link
+If you want to play it while following along , here is the link
 https://www.hackthebox.com/machines/blackfield
 
 # Target : 10.10.10.192
@@ -28,7 +28,7 @@ I always start with network enumeration
 
 ![nmap](/assets/Chirpy/bf-nmap-scan.png)
 
-### So we have:<br>
+### Services:<br>
 53 : DNS: `We can enumerate the nameservers and discover the domain controller`<br>
 88 : Kerberos : `We can enumerate users inside the domain` [Understand why](https://www.prosec-networks.com/en/blog/kerberos-attacks/)<br>
 135 : RPC : `Possible anonymous login`<br>
@@ -44,11 +44,11 @@ Querying the nameservers using dig : `dig ns blackfield.local @10.10.10.192`,<br
 #### RPC : 
 We attempt to join as anonymous using `rpcclient -N blackfield.local`,but we get "ACCESS DENIED"
 #### SMB
-Using netexec : `netexec smb blackfield.local -u 'Guest' -p '' `, we find out that we have Guest login enabled.<br>
+Using netexec : `netexec smb blackfield.local -u 'Guest' -p '' `, we discover that Guest login is enabled.<br>
 ![nxc](/assets/Chirpy/bf-smb-anon-1.png)
 
 In order to download every file inside the shares, we can use a module provided by netexec called [spider_plus](https://www.netexec.wiki/smb-protocol/spidering-shares)
-But we don't find nothing inside <br>
+But we don't find anything inside <br>
 ![spider](/assets/Chirpy/bf-spider1.png)<br>
 <br>So we attempt to bruteforce [RID](https://www.netexec.wiki/smb-protocol/enumeration/enumerate-users-by-bruteforcing-rid)
 <br>Let's redirect the output in a file (users.txt) and manipulate strings in order to retrieve a clear user list<br>
@@ -104,7 +104,7 @@ the content is something such as a nicknames list:<br>
 
 Even after trying create a wordlist for kerbrute, no valid user was found.
 
-So let's jump to my favorite part!
+Now let’s move on to my favorite part!
 ## Bloodhound
 >BloodHound uses graph theory to reveal hidden and often unintended relationships within Active Directory, Entra ID (formerly Azure AD), and Microsoft Azure IaaS. Defenders (blue teams) and attackers (red teams) use BloodHound for a deeper understanding of privileged relationships in an environment.
 
