@@ -20,7 +20,7 @@ I always start with network enumeration
 
 ## Network enumeration
 #### Rustscan
-`╰─ rustscan -a 10.10.10.192 --ulimit 5000 -g` <br>
+```╰─ rustscan -a 10.10.10.192 --ulimit 5000 -g``` <br>
 10.10.10.192 -> [53,88,135,389,445,593,3268,5985]
 #### Nmap
 ```
@@ -54,9 +54,7 @@ But we don't find anything inside <br>
 ![spider](/assets/Chirpy/bf-spider1.png)<br>
 <br>So we attempt to bruteforce [RID](https://www.netexec.wiki/smb-protocol/enumeration/enumerate-users-by-bruteforcing-rid)
 <br>Let's redirect the output in a file (users.txt) and manipulate strings in order to retrieve a clear user list<br>
-```
-cat users.txt  | awk '{print $6}' | tr -d ":" >> toverify.txt & cat toverify.txt | sed -r 's\BLACKFIELD\ \g' | tr -d '\' | tr -d ' ' >> clean_users_toverify.txt
-```
+```cat users.txt  | awk '{print $6}' | tr -d ":" >> toverify.txt & cat toverify.txt | sed -r 's\BLACKFIELD\ \g' | tr -d '\' | tr -d ' ' >> clean_users_toverify.txt```
 
 ### Kerbrute
 Using `kerbrute userenum --dc dc01.blackfield.local -d blackfield.local clean_users_toverify.txt` we retrieve a list of users and computers inside the domain:
