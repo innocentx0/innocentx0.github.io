@@ -26,4 +26,7 @@ I always start with network enumeration
 `╰─ nmap -sT -A -Pn -T5 -p 53,88,135,389,445,593,3268,5985 10.10.10.192 --disable-arp-ping --min  
 -rtt-timeout 50ms --max-rtt-timeout 100ms --stats-every=3s`
 
+![Nmap scan](/assets/blackfield/nmap-scan.jpg)
+
+
 
