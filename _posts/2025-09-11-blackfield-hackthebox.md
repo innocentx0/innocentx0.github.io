@@ -4,7 +4,6 @@ date: 2025-09-11 00:00:00 +0800
 categories: [ctf, hacking, walkthrought]
 tags: [ctf, walkthrought, hacking, penetration testing]
 --- 
-
 ## Blackfield Machine Walkthrought
 Hello everyone, this is my first machine walkthrough on my personal blog site.
 Since I’ve been studying for the OSCP, I started working on boxes that resemble the exam to prove and sharpen my skills.
@@ -57,7 +56,7 @@ But we don't find anything inside <br>
 ```cat users.txt  | awk '{print $6}' | tr -d ":" >> toverify.txt & cat toverify.txt | sed -r 's\BLACKFIELD\ \g' | tr -d '\' | tr -d ' ' >> clean_users_toverify.txt```
 
 ### Kerbrute
-Using `kerbrute userenum --dc dc01.blackfield.local -d blackfield.local clean_users_toverify.txt` we retrieve a list of users and computers inside the domain:
+Using `kerbrute userenum --dc dc01.blackfield.local -d blackfield.local clean_users_toverify.txt` we retrieve a list of users and computers inside the domain:<br>
 
 ![kerbrute](/assets/Chirpy/bf-kerbrute.png)<br>
 ```cat kerb_users.txt | awk '{print $7}' >> final_valid.txt```
