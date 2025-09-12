@@ -52,6 +52,9 @@ In order to download every file inside the shares, we can use a module provided 
 But we don't find anything inside <br>
 ![spider](/assets/Chirpy/bf-spider1.png)<br>
 <br>So we attempt to bruteforce [RID](https://www.netexec.wiki/smb-protocol/enumeration/enumerate-users-by-bruteforcing-rid)
+`netexec smb 10.10.10.192 -u 'Guest' -p '' --rid-brute`
+<img width="1126" height="786" alt="Pasted image 20250911110826" src="https://github.com/user-attachments/assets/78498df5-b48d-4387-ac91-24079c9a0212" />
+
 <br>Let's redirect the output in a file (users.txt) and manipulate strings in order to retrieve a clear user list<br>
 ```cat users.txt  | awk '{print $6}' | tr -d ":" >> toverify.txt & cat toverify.txt | sed -r 's\BLACKFIELD\ \g' | tr -d '\' | tr -d ' ' >> clean_users_toverify.txt```
 
