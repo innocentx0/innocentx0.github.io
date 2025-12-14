@@ -105,7 +105,7 @@ Let's also use ReconSpider to get any scrapable information
 
 We found an email and other endpoints, however they seems to not containing any good information
 
-We also have a login endpoint that doesn't seems vulnerable to SQL injection, NoSqli or other type of injection vulnerabilities, so let's continue with recon
+We also have a login endpoint that doesn't seems vulnerable to SQL injection, NoSqli or other type of injection vulnerabilities, so let's continue with recon <br>
 <img width="436" height="560" alt="image" src="https://github.com/user-attachments/assets/481da92e-d0f8-4cdf-adb6-c9f02e26803b" />
 
 
