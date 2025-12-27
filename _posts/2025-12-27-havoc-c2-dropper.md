@@ -51,7 +51,8 @@ Ho impostato la porta 4000 per le connessioni inbound e ICMP raggiungibile per u
 
 <img width="1261" height="410" alt="image" src="https://github.com/user-attachments/assets/b1496df8-a6d7-482d-92e8-f80278c41f5a" />
 <img width="363" height="272" alt="image" src="https://github.com/user-attachments/assets/13ad6090-4f90-470b-bcf7-2ef9f95b23dc" />
-https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml
+
+[Info!](https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml)
 
 
 
@@ -148,7 +149,8 @@ In questo caso,potremmo generare un payload solo per windows, motivo per la qual
 <img width="549" height="678" alt="image" src="https://github.com/user-attachments/assets/d52a29bb-1a67-40d5-b742-ed5a5ea4edd2" />
 
 ## Creazione del progamma 
-Inizialmente ho scritto qualche riga di codice per vedere cosa si vedesse con hexdump o strings
+Inizialmente ho scritto qualche riga di codice per vedere cosa si vedesse con hexdump o strings<br>
+
 <img width="606" height="332" alt="image" src="https://github.com/user-attachments/assets/8d8fcafe-e848-4a9b-8f65-e8d9c2f12c14" />
 Molto semplice:
 
