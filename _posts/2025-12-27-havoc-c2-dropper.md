@@ -107,12 +107,12 @@ Qui ho però apportato una modifica, dato che il VPS è comunque molto restritti
 ❯ ssh -i ssh.key ubuntu@server -L 4000:127.0.0.1:4000
 ```
 
-Con un breve network scan  sul nostro sistema, vediamo che abbiamo la porta aperta. proviamo a raggiungerla con il client havoc
+Con un breve network scan  sul nostro sistema, vediamo che abbiamo la porta aperta. proviamo a raggiungerla con il client havoc <br>
 <img width="239" height="89" alt="image" src="https://github.com/user-attachments/assets/73b2aadc-8bca-4e3e-bbb5-55b08d3c30e7" />
 
-Creiamo un profilo e inseriamo tutti i dati
+Creiamo un profilo e inseriamo tutti i dati <br>
 <img width="500" height="277" alt="image" src="https://github.com/user-attachments/assets/b19ddaaa-1dcc-4169-a9ea-b052c23f1070" />
-
+<br>
 <img width="1643" height="826" alt="image" src="https://github.com/user-attachments/assets/a01df206-3b34-45ad-9a2e-475fd55aa8de" />
 
 Abbiamo con successo ottenuto l'accesso al team server.
