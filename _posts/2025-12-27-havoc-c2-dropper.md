@@ -146,7 +146,7 @@ Prima di tutto
 
 ### Generiamo un payload:
 
-In questo caso,potremmo generare un payload solo per windows, motivo per la quale il testing potrebbe avvenire solo su una macchina windows, ma il nostro obbiettivo non è questo, è iniettare l'agente , facendo si che venga eseguito tramite un dropper a provare di reverse engineering,
+In questo caso,potremmo generare un payload solo per windows, motivo per la quale il testing potrebbe avvenire solo su una macchina windows, ma il nostro obbiettivo non è questo, è iniettare l'agente , facendo si che venga eseguito tramite un dropper a prova di reverse engineering,
 <img width="549" height="678" alt="image" src="https://github.com/user-attachments/assets/d52a29bb-1a67-40d5-b742-ed5a5ea4edd2" />
 
 ## Creazione del progamma 
