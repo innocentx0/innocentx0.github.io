@@ -6,8 +6,9 @@ tags: [Red Teaming, C2, Hacking]
 --- 
 
 #### Intro 
-Ho deciso di fare questo post in italiano, in quanto non ho visto molti post inerenti a ciò che ho scritto in italia, andremo a vedere  qualcosa di diverso: ultimamente mi sono imbattuto su parecchi argomenti riguardanti il red teaming, in particolare i C2 (Command and control)
-In aggiunta, ho deciso di voler imparare bene C per poter fare del reverse engineering una del mie principali armi.
+Ho deciso di fare questo post in italiano, dato che non ho visto molti articoli inerenti agli argomenti che tratterò.
+Ultimamente mi sono imbattuto in diversi temi legati al red teaming, in particolare ai C2 (Command and Control).
+In parallelo, ho deciso di studiare a fondo il linguaggio C, con l’obiettivo di rendere il reverse engineering una delle mie principali competenze.
 
 #### Progetto
 Ho voluto approfittare del fatto che stessi imparando il linguaggio C per poter creare qualcosa di mio, un dropper, che evade sia AV che HIDS (Host-based intrusion detection system) /IPS (Intrusion prevention system), che una volta nel sistema della vittima, scaricherà un demone generato da Havoc C2 Framework. <br>
