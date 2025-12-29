@@ -230,4 +230,5 @@ In fine , ho fatto si che ogni singola funzione, testo per debug e tutto ciò ch
 3. Offuscamento del codice
 
 Tutti i file sono presenti qui! [Github](https://github.com/innocentx0/C2-Dropper)
+
 <img width="969" height="466" alt="image" src="https://github.com/user-attachments/assets/aac06714-92b5-44b9-aa73-7b432574d19a" />
