@@ -6,16 +6,17 @@ tags: [Red Teaming, C2, Hacking]
 --- 
 
 #### Intro 
-Oggi andremo a vedere  qualcosa di diverso, ultimamente mi sono imbattuto su parecchi argomenti riguardanti il red teaming, in particolare i server C2 (Command and control)
+Ho deciso di fare questo post in italiano, in quanto non ho visto molti post inerenti a ciò che ho scritto in italia, andremo a vedere  qualcosa di diverso: ultimamente mi sono imbattuto su parecchi argomenti riguardanti il red teaming, in particolare i C2 (Command and control)
 In aggiunta, ho deciso di voler imparare bene C per poter fare del reverse engineering una del mie principali armi.
 
 #### Progetto
-Ho voluto approfittare del fatto che stessi imparando il linguaggio C per poter creare qualcosa di mio, un dropper, che evade sia AV che IDS/IPS che una volta nel sistema della vittima, scaricherà un demone generato da Havoc C2, per far si che il tutto fosse il più anonimo possibile e proteggero l'OPSec , ho inoltre offuscato il codice con un paio di tecniche particolari, risultando non vulnerabile a virustotal e difficile da leggere una volta compilato e non.
+Ho voluto approfittare del fatto che stessi imparando il linguaggio C per poter creare qualcosa di mio, un dropper, che evade sia AV che HIDS (Host-based intrusion detection system) /IPS (Intrusion prevention system), che una volta nel sistema della vittima, scaricherà un demone generato da Havoc C2 Framework. <br>
+Per far si che il tutto fosse il più anonimo possibile e proteggero l'OPSec , ho inoltre offuscato il codice con un paio di tecniche particolari, risultando non vulnerabile a virustotal e difficile da leggere una volta compilato ma anche non.
 
 
 #### Strumenti
 Per creare l'ambiente, ho usato:
-1. Oracle Free tier VPS ( Macchina di command and control)
+1. Oracle Free tier VPS ( Macchina di command and control )
 2. Havoc C2 Framework
 3. C per la creazione del dropper
 
@@ -23,13 +24,13 @@ Per creare l'ambiente, ho usato:
 <img width="514" height="232" alt="image" src="https://github.com/user-attachments/assets/2279c663-80c6-4af5-ab38-4be1ca6c2172" />
 
 L'attacco non sfrutta una vulnerabilità nel sistema, ben si sfrutta un attacco a catena ( Phishing ad esempio).
-1. La vittima viene ingannata a scaricare il file, ad esempio dicendo che è un gioco crackato (molto semplice)
+1. La vittima viene ingannata a scaricare il file,magari spacciandolo per qualcosa di sicuro (molto semplice)
 2. Una volta nel sistema, l'AV non dovrebbe rilevare il file come Malware
 3. il Portable Executable , una volta eseguito, installerà in una cartella scrivibile il demone generato da Havoc-C2
 4. Il demone verrà eseguito e il client vittima farà parte del del nostro server C2
 
 ### Inizio
-Ho iniziato creando una VPS su oracle
+Ho iniziato creando una VPS su oracle, da poter usare come server di controllo.
 https://www.oracle.com/it/cloud/sign-in.html
 
 Passi importanti da seguire sono:
@@ -136,7 +137,7 @@ Molti sistemi di detection cercano pattern come:
 - intervalli regolari
 - stesso endpoint a tempo fisso
 
-Il jitter **rompe la periodicità**, rendendo il beaconing simile a traffico legittimo.
+Il jitter rompe la periodicità, rendendo il beaconing simile a traffico legittimo.
 
 Prima di tutto
 
@@ -163,55 +164,57 @@ Se proviamo a fare un po' di analisi sul PE generato, notiamo delle cose CRITICH
 
 IP esposto --> OpSec fallito
 
-Quindi, dato che noi ci teniamo a mantenere un buon anonimato, scriviamo il codce in modo tale che sia il meno leggibile possibile.
+Quindi, dato che dobbiamo mantenere un buon anonimato, riscriviamo il codice in modo tale che sia il meno leggibile possibile.
 
 ### Creazione e offuscamento del codice: ELF
 <img width="753" height="611" alt="image" src="https://github.com/user-attachments/assets/6e604b19-789d-4417-8f94-f75f73bd7bcb" />
 
 1. Verrà effettuato un piccolo health check del server e successivamente verrà scaricato il file.
+   (Ovviamente ICMP dovrà essere type code 0 per far si che questa linea funzioni)
 <img width="1643" height="158" alt="image" src="https://github.com/user-attachments/assets/84e328ef-9b36-45d8-928a-6bb2fe8664a2" />
 Il tutto sembra andare
 
-Ora dobbiamo trovare una cartella scrivibile ,
-Su Linux:
-`~/.local/bin/shared/clib/`
-Su Windows
-`C:\Users\<user>\AppData\Local\`
+Ora dobbiamo trovare una cartella scrivibile: <br>
+Su Linux:<br>
+```~/.local/bin/shared/clib/```
+Su Windows: <br>
+```C:\Users\<user>\AppData\Local\```<br>
 
 <img width="808" height="362" alt="image" src="https://github.com/user-attachments/assets/0c6f9484-6323-4af7-a325-ecbea06a3be6" />
 
 Con questa modifica:
-- Il codice verrà inserito in una directory scrivibile
-Adesso bisognerà eseguirlo e avere un PoC (Proof of Concept) del risultato
+- Il codice verrà inserito in una directory scrivibile.
+  <br>
+Adesso bisognerà eseguirlo e avere un PoC (Proof of Concept) del risultato:
 
 <img width="641" height="331" alt="image" src="https://github.com/user-attachments/assets/9dbb7d11-b9bd-4f7f-bd53-ce8e26b8fcde" />
 <img width="804" height="387" alt="image" src="https://github.com/user-attachments/assets/d8f38807-23c6-4da8-b81d-e4948530b8e1" />
 
-Come PoC abbiamo fatto si che ricevessimo una notifica una voolta che l'agente sarebbe stato eseguito.
+Come PoC abbiamo fatto si che una volta che l'agente sarebbe stato eseguito, ricevessimo una notifica
 
 Adesso: Purtroppo non possiamo testare l'agent su linux, in quanto ancora non è supportato al 100%, per tanto, scriveremo del codice per farlo esegure su windows:
 
-Quello finale di Linux è il seguente:
+il codice finale per Linux è il seguente:
 <img width="1098" height="846" alt="image" src="https://github.com/user-attachments/assets/3ffb4796-14bf-48ed-a1fb-48dc1ec20ff9" />
 
 ### Scrittura codice Windows: PE 
 
 - Rimpiazziamo il path linux con un path adatto a windows
-- Al posto di wget useremo il certutil
-- Modifichiamo il ping per poter essere eseguito da windows
+- Al posto di wget useremo certutil
+- Modifichiamo il comando ping per poter essere eseguito da windows
 
 <img width="994" height="874" alt="image" src="https://github.com/user-attachments/assets/3791ad3d-f58b-46ad-9bba-0aae27e57637" />
 
 Adesso sembrerebbe finito, ma manca il punto principale!
 L'offuscamento.
-<img width="648" height="348" alt="image" src="https://github.com/user-attachments/assets/695901f9-5123-42ff-a713-bae1beadfeaf" />
+<img width="648" height="348" alt="image" sr ma questo non saràc="https://github.com/user-attachments/assets/695901f9-5123-42ff-a713-bae1beadfeaf" />
 
 ## Offuscamento
 
 Per offuscarlo, ho deciso di darmi un po' all'ingegno, il tutto è assolutamente reversibile, ma non come prima, l'ip non comparirà tra le stringhe e il tutto sarà più sicuro.
 
 Per faro ho deciso di fare così:
-- Ho scritto l'IP in hex, quando il progamma dovrà richiamare l'agent, manderà una richiesta alla stringa decodificata, ma questo non sarà visibile da string o hexdump
+- Ho scritto l'IP in hex, quando il progamma dovrà richiamare l'agent, manderà una richiesta alla stringa decodificata,ciò non renderà l'ip visibile da strings o hexdump
 
 <img width="512" height="491" alt="image" src="https://github.com/user-attachments/assets/a30c8adb-28ab-40a2-938b-6c1427cab60a" />
 <img width="315" height="110" alt="image" src="https://github.com/user-attachments/assets/282bba25-8bb1-470d-b256-e632f796ca47" />
@@ -223,7 +226,7 @@ In fine , ho fatto si che ogni singola funzione, testo per debug e tutto ciò ch
 
 ## Risultato:
 1. Bypass di AV
-2. Inserimento di macchina target nella botnet
+2. Inserimento di macchina target nel server C2
 3. Offuscamento del codice
 
 <img width="969" height="466" alt="image" src="https://github.com/user-attachments/assets/aac06714-92b5-44b9-aa73-7b432574d19a" />
