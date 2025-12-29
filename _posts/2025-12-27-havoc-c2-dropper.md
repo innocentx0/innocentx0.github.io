@@ -21,7 +21,7 @@ Per creare l'ambiente, ho usato:
 3. C per la creazione del dropper
 
 ### Workflow
-<img width="514" height="232" alt="image" src="https://github.com/user-attachments/assets/2279c663-80c6-4af5-ab38-4be1ca6c2172" />
+<img width="910" height="424" alt="image" src="https://github.com/user-attachments/assets/d63bbcc6-a840-4053-9567-6ac3c4dbbcf2" />
 
 L'attacco non sfrutta una vulnerabilità nel sistema, ben si sfrutta un attacco a catena ( Phishing ad esempio).
 1. La vittima viene ingannata a scaricare il file,magari spacciandolo per qualcosa di sicuro (molto semplice)
@@ -229,4 +229,5 @@ In fine , ho fatto si che ogni singola funzione, testo per debug e tutto ciò ch
 2. Inserimento di macchina target nel server C2
 3. Offuscamento del codice
 
+Tutti i file sono presenti qui! [Github](https://github.com/innocentx0/C2-Dropper)
 <img width="969" height="466" alt="image" src="https://github.com/user-attachments/assets/aac06714-92b5-44b9-aa73-7b432574d19a" />
