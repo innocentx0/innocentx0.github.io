@@ -8,7 +8,7 @@ tags: [CTF, exploitation, hacking]
 ### Introduction
 Hello everyone.
 In this post , we are going to: <br>
-1. Exploit a Cameleon CMS vulnerability (CVE-2025-2304)<br> 
+1. Exploit a Cameleon CMS vulnerability (CVE-2025-2304) <br> 
 2. Taking advantage of exposed AWS Credentials to access a sensitive S3 bucket that will give us spicy information<br> 
 3. Getting access to the machine as user<br> 
 4. Escalate our privileges with a progam misconfiguration vulnerable to PE.<br> 
