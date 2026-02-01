@@ -179,6 +179,7 @@ So i registered a new account: <br>
 With this i had access to my own admin panel (For post management) <br>
 on the bottom i noticed: <br>
 <img width="221" height="85" alt="image" src="https://github.com/user-attachments/assets/95e7b8a6-f4ff-4340-9418-46c54a01dd95" />
+<br>
 Looking up on google for Camaleon Version 2.9.0 i have found:
 
 <img width="1450" height="757" alt="image" src="https://github.com/user-attachments/assets/83cc4ce9-ff18-4465-9ba6-ece357eabe5b" />
