@@ -8,24 +8,24 @@ tags: [CTF, exploitation, hacking]
 ### Introduction
 Hello everyone.
 In this post , we are going to: <br>
-1. Exploit a Cameleon CMS vulnerability (CVE-2025-2304) <br> 
+1. Exploit a Camaleon CMS vulnerability (CVE-2025-2304) <br> 
 2. Taking advantage of exposed AWS Credentials to access a sensitive S3 bucket that will give us spicy information<br> 
 3. Getting access to the machine as user<br> 
-4. Escalate our privileges with a progam misconfiguration vulnerable to PE.<br> 
+4. Escalate our privileges with a program misconfiguration vulnerable to PE.<br> 
 
 ### Reconnaissance 
 
 Our target IP is: 10.129.20.186<br> 
-As always , i start my scan with [Rustscan](https://github.com/bee-san/RustScan) , a powerfull and fast tool that can let us <br>
+As always , i start my scan with [Rustscan](https://github.com/bee-san/RustScan) , a powerful and fast tool that can let us <br>
 understand which port is open , faster than Nmap, that we're gonna use just right after getting all the open ports to analyze them better.<br>
 
 
 #### Network recon
 ```bash
 rustscan -a 10.129.20.186 --ulimit 5000 -g
-  Open 10.129.20.186:22  
-	Open 10.129.20.186:80  
-	Open 10.129.20.186:54321
+Open 10.129.20.186:22  
+Open 10.129.20.186:80  
+Open 10.129.20.186:54321
 ```
 ```bash
 nmap -sT -A -Pn -T5 -p 22,80,54321 10.129.20.186 --disable-arp-ping --min-rtt-timeout 50ms --max-rtt-timeout 100ms --stats-every=2s
@@ -130,9 +130,9 @@ http://facts.htb/up
 
 ## Website
 <img width="1796" height="834" alt="image" src="https://github.com/user-attachments/assets/0fe8eedf-cb0e-45d0-be58-4d21ac9ab10d" /> <br>
-So let's try to move around what we have found fuzzing directries. <br>
+So let's try to moving around what we have found fuzzing directories. <br>
 
-Going to  'http://facts.htb/assets/themes/camaleon_first/assets/js/main-2d9adb006939c9873a62dff797c5fc28dff961487a2bb550824c5bc6b8dbb881.js ' <br>
+Going to  `http://facts.htb/assets/themes/camaleon_first/assets/js/main-2d9adb006939c9873a62dff797c5fc28dff961487a2bb550824c5bc6b8dbb881.js` <br>
 Reveals  that the website is using jQuery v2.2.4, which could be' vulnerable to [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/cve-2020-11022)
 ```
 /*!
@@ -150,7 +150,7 @@ Reveals  that the website is using jQuery v2.2.4, which could be' vulnerable to 
  */
 ```
 <br>
-However we can also read "camaleon_first" in the url = Cameleon CMS is being used. <br>
+However we can also read "camaleon_first" in the url = Camaleon CMS is being used. <br>
 Going to the other endpoints results in any interesting informations,expect for /admin <br>
 <img width="353" height="522" alt="image" src="https://github.com/user-attachments/assets/17caafd1-e3ca-47fc-b80c-8d1087ec18a2" />
 Digging in <br>
@@ -163,7 +163,7 @@ I tried to: <br>
 Here we can see there is no XSS protection
 
 
-I also discovered some pages whit some users comments, so i tried to see if any of this user was available for login in the website:
+I also discovered some pages with some users comments, so i tried to see if any of this user was available for login in the website:
 <img width="622" height="254" alt="image" src="https://github.com/user-attachments/assets/b97b4ba9-7111-4f5c-b297-d44a300bb0d5" />
 
 But no dice. <br>
@@ -173,7 +173,7 @@ I then tried to find something in forgot password (Injection or email enumeratio
 
 However nothing of this worked and that made filter out those endpoints. <br>
 
-So i regirested a new account: <br>
+So i registered a new account: <br>
 <img width="334" height="832" alt="image" src="https://github.com/user-attachments/assets/26ed5f41-d269-483e-814f-fab65d720b31" />
 
 With this i had access to my own admin panel (For post management) <br>
@@ -248,7 +248,7 @@ So i downloaded it <br>
 ```bash
 aws s3 cp s3://internal/.ssh/id_ed25519 ./id_ed25519 --profile local --endpoint-url http://facts.htb:54321/
 ```  
-and tried to access to the machine whit common username as facts..admin..dev..internal.. but nothing worked. <br>
+and tried to access the machine with common username as facts..admin..dev..internal.. but nothing worked. <br>
 So i had to extract the public key (containing the username ) from this private key, but in order to do that, i needed the passphrase of the private key. <br>
 To crack the password , i used [sshng2john](https://github.com/truongkma/ctf-tools/blob/master/John/run/sshng2john.py) <br>
 
@@ -256,7 +256,7 @@ However a problem appeared, it's a very old tool and it requires python2.
 Since it's very deprecated, i used a docker container with python in order to prevent installing it in my system
 
 ```bash
-sudo docker run -it --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp python:2.7 python sshng2ohn.py id_ed25519
+sudo docker run -it --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp python:2.7 python sshng2john.py id_ed25519
 ```
 
 <img width="929" height="189" alt="image" src="https://github.com/user-attachments/assets/3123181f-9115-498c-88b7-7aad64f9dae0" />
