@@ -185,7 +185,7 @@ Looking up on google for Camaleon Version 2.9.0 i have found:
 <img width="1450" height="757" alt="image" src="https://github.com/user-attachments/assets/83cc4ce9-ff18-4465-9ba6-ece357eabe5b" />
 
 ## Exploitation
-Since any Proof of concept was around, i read the vulnerable pieces code <br>
+Since no Proof of Concept was available, i read the vulnerable pieces of code <br>
 ```ruby
 def updated_ajax
   @user = current_site.users.find(params[:user_id])
