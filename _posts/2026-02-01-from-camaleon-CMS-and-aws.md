@@ -163,7 +163,7 @@ I tried to: <br>
 Here we can see there is no XSS protection
 
 
-I also discovered some pages with some users comments, so i tried to see if any of this user was available for login in the website:
+I also discovered some pages with some users comments, so i tried to see if any of this user was available for loggin in the website:
 <img width="622" height="254" alt="image" src="https://github.com/user-attachments/assets/b97b4ba9-7111-4f5c-b297-d44a300bb0d5" />
 
 But no dice. <br>
