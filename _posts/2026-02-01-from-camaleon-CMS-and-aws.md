@@ -151,7 +151,7 @@ Reveals  that the website is using jQuery v2.2.4, which could be' vulnerable to 
 ```
 <br>
 However we can also read "camaleon_first" in the url = Camaleon CMS is being used. <br>
-Going to the other endpoints results in any interesting informations,expect for /admin <br>
+Going to the other endpoints,doesn't reveal any interesting informations,except for /admin <br>
 <img width="353" height="522" alt="image" src="https://github.com/user-attachments/assets/17caafd1-e3ca-47fc-b80c-8d1087ec18a2" />
 Digging in <br>
 I tried to: <br>
