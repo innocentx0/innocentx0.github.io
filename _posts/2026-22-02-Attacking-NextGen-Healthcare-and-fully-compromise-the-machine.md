@@ -14,16 +14,16 @@ In a real-life scenario, it might be one of the worst nightmares for people work
 
 Our target IP will be: 10.129.1.210<br>
 Let's start with a quick network scan
-```
+```bash
 ❯ rustscan -a $IP --ulimit 5000 -g
 10.129.1.210 -> [22,80,6661,443]
 ```
 
-```
+```bash
 ❯ nmap -sT -A -Pn -T5 -p 22,80,6661,4431 $IP --disable-arp-ping --min-rtt-timeout 50ms --max-rtt-timeout 100ms --stats-every=2s -v
 ```
 
-```
+```bash
 PORT     STATE  SERVICE VERSION  
 22/tcp   open   ssh     OpenSSH 9.2p1 Debian 2+deb12u7 (protocol 2.0)  
 | ssh-hostkey:    
@@ -67,7 +67,7 @@ Looking for default credentials we found out that admin/admin are the default on
 The version should be: ==3.12.0==
 
 At this point i started enumerating some publicy accessible file by using some directory brute-forcing tools:
-```
+```bash
 feroxbuster -u https://10.129.1.210 -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt  
 t -X 404 --insecure
 ```
@@ -104,19 +104,19 @@ Exploring the mirthconnect directories, i found :
 /usr/local/mirthconnect/conf/mirth.properties
 Which contained:
 
-```
+```bash
 database.username = mirthdb  
-database.password = MirthPass123!
+database.password = Mir***s123!
 ```
 
 So i started connecting to the MariaDB database with those credentials and it worked!
 
-```
+```bash
 > which mysql  
 /usr/bin/mysql
 ```
 
-```
+```bash
 /usr/bin/mysql -h 127.0.0.1 -u mirthdb -p
 
 ---
@@ -141,8 +141,8 @@ I found a hash, the sedric’s password hash!
 The only problem was understanding how this hash could be cracked.
 
 Leaving this on the side, i tried using those credentials to access in mirth (both Web and cli )
-```
-./mccommand -a 10.129.1.210:6661 -u 'sedric' -p 'MirthPass123!'  
+```bash
+./mccommand -a 10.129.1.210:6661 -u 'sedric' -p 'Mir***a***123!'  
 ```
 
 But nothing seemed to work
@@ -157,7 +157,7 @@ and the iterations was 600.000 (💀)
 
 By the way: 
 Converting the hash in HEX, the bytes were: 40 bytes, since SHA-256 produce 32 byte hash, that means that the first 8 byte were the salt and the rest the digest, in the end, i used the hashcat module 10900 that manage PBKDF2-SHA256 .
-```
+```bash
 hashcat -m 10900 -a 0 "sha256:600000:bbff8b0413949da7:5b8b15d082216c30ea080cf2db511d2b939f641243d4d7b8ad76b55603f90b32ddf0fb0b32ddf0fb" /usr/share/wordlists/rockyou.txt  -w 3
 ```
 
@@ -260,8 +260,8 @@ I ended up in a rabbit hole: since the hash seemed too complicated to crack, i s
 Since in the same file as before i found:
 ```
 keystore.path = ${dir.appdata}/keystore.jks  
-keystore.storepass = 5GbU5HGTOOgE  
-keystore.keypass = tAuJfQeXdnPw  
+keystore.storepass = 5GbU5H***OOgE  
+keystore.keypass = tAuJfQe*** 
 keystore.type = JCEKS
 ```
 i carried that file to my machine, used keytool to extract every data available inside 
