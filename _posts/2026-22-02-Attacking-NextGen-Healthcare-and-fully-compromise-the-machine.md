@@ -95,7 +95,14 @@ Results:
 [*] Version: 4.4.0  
 [+] VULNERABLE — Mirth Connect 4.4.0 < 4.4.1
 ```
-…- Internal services
+At this point with a reverse shell we gained access to the mirth system user. <br>
+
+After getting a shell i started looking for:
+- Vulnerable SUID binaries
+- Vulnerable Versions
+- Crontab
+- Running process
+- Internal services
 - Sensitive files
 
 
