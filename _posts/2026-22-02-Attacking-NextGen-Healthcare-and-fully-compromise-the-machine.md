@@ -186,7 +186,7 @@ wordlist_path = "/usr/share/wordlists/rockyou.txt"
 
 print(f"[*] Loading wordlist: {wordlist_path}")
 print(f"[*] Salt extracted: {salt.hex()}")
-print(f"[*] Iteration: {iterations} (Molto lento!)")
+print(f"[*] Iteration: {iterations}")
 print("-" * 50)
 
 start_time = time.time()
