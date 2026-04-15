@@ -16,7 +16,7 @@ As always, let's start with a Rustscan --> Nmap scan:
 
 Open 10.129.20.19:22  
 Open 10.129.20.19:80
-```
+``` 
 
 ```bash
 ❯ nmap -sT -A -Pn -T5 -p 22,80 10.129.20.19 --disable-arp-ping --min-rtt-timeout 50ms --max-rtt-timeout  
