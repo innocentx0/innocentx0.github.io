@@ -298,6 +298,7 @@ https://www.sonicwall.com/it-it/blog/flowiseai-custom-mcp-node-remote-code-execu
 - **POST Request Capability**: The attacker must be able to send HTTP POST requests with a JSON body to the vulnerable endpoint.
 
 and the request should have looked like:
+
 <img width="657" height="167" alt="image" src="https://github.com/user-attachments/assets/476f1735-dd49-4175-8b6a-b58d87ffcfad" />
 i tried to build a curl command with the following payload
 ```bash
