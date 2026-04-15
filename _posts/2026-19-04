@@ -1,0 +1,74 @@
+---
+title: "Hacking Flowise and getting system root via Gogs"
+date: 2026-19-04 00:00:00 +0800
+categories: [Bug bounty, hacking]
+tags: [Bug bounty, CTF, Hacking]
+--- 
+
+# Introduction
+In this post, we are gonna use  hack into a open source tool designed for creating AI agents through a simple drag-and-drop interface, chaining  CVE-2025-59528 and CVE-2025-58434
+getting root with an internal gogs service running as a root process, vulnerable to CVE-2025-8110.
+
+# Start
+As always, let's start with a Rustscan --> Nmap scan:
+```bash
+❯ rustscan -a 10.129.20.19 --ulimit 5000
+
+Open 10.129.20.19:22  
+Open 10.129.20.19:80
+```
+
+```bash
+❯ nmap -sT -A -Pn -T5 -p 22,80 10.129.20.19 --disable-arp-ping --min-rtt-timeout 50ms --max-rtt-timeout  
+100ms -v
+
+22/tcp filtered ssh  
+80/tcp open     http    nginx 1.24.0 (Ubuntu)  
+| http-methods:    
+|_  Supported Methods: GET HEAD POST OPTIONS  
+|_http-server-header: nginx/1.24.0 (Ubuntu)  
+|_http-title: Did not follow redirect to http://silentium.htb/  
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+```
+
+Since we discovered that the domain is "silentium.htb" let's add it in to our /etc/hosts file to resolve it
+`echo '10.129.20.19 silentium.htb' `
+
+# Technologies 
+Let's find out which technologies this website is using
+
+```bash
+❯ whatweb silentium.htb
+
+http://silentium.htb [200 OK] Country[RESERVED][ZZ], HTML5, HTTPServer[Ubuntu Linux][nginx/1.24.0 (Ubunt  
+u)], IP[10.129.20.19], Script, Title[Silentium | Institutional Capital & Lending Solutions], nginx[1.24.  
+0]
+```
+Before of going in the website, let's leave some background assets fuzzer/discovery tool to map the website better.
+1. VHost enumeration
+2. Assets enumeration
+
+```bash
+❯ ffuf -u http://silentium.htb/ -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-20  
+000.txt -fc 404 -H "HOST:FUZZ.silentium.htb" -fs 178
+
+staging                 [Status: 200, Size: 3142, Words: 789, Lines: 70, Duration: 148ms]
+```
+
+```
+❯ feroxbuster -u http://silentium.htb/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt  -X 404
+Output: nothing interesting
+```
+
+# Webapp
+Let's take a look in both website
+
+
+
+
+
+
+
+
+
+
