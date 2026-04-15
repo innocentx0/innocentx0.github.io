@@ -1,6 +1,6 @@
 ---
 title: "Hacking Flowise and getting system root via Gogs"
-date: 2026-04-19 00:00:00 +0800
+date: 2026-04-15 00:00:00 +0800
 categories: [Bug bounty, hacking]
 tags: [Bug bounty, CTF, Hacking]
 --- 
