@@ -66,6 +66,7 @@ https://cohort.htb/ [200 OK] Country[RESERVED][ZZ], HTML5, HTTPServer[Ubuntu Lin
 
 
 The site is "Cohort Analytics". Clicking around, there's a feature that takes a URL and a CSV and validates it before processing. That's usually a good sign. Two things crossed my mind immediately:
+
 <img width="476" height="321" alt="image" src="https://github.com/user-attachments/assets/21c8897c-323d-4701-8591-e7effed6dc93" />
 
 - SSRF through the URL field
@@ -96,6 +97,7 @@ ffuf -u http://cohort.htb/api/validate -X post -w ./ports.txt -H "Content-Type: 
 ```
 
 ffuf's own output wasn't giving me much to filter on at a glance, too much noise to eyeball from the terminal, so I switched over to Caido to actually read the responses properly instead of guessing from status codes alone.
+
 <img width="1879" height="912" alt="image" src="https://github.com/user-attachments/assets/834b62f0-ae2e-45d0-8e13-1e96b724eb35" />
 
 
