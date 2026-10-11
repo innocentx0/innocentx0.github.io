@@ -1,172 +1,74 @@
 ---
-title: "How I Hacked NASA and Scored a Killer LOR"
+title: "How I Got a Letter of Recognition from NASA"
 date: 2025-07-19 00:00:00 +0800
 categories: [Bug bounty, hacking]
-tags: [Bug bounty, NASA Hacking, Hacking]
---- 
-
-# How I Hacked NASA and Scored a Killer LOR
-
-Today, I’m going to tell you one of my story: **how I hacked NASA**. Yep, you heard that right. The NASA. The space agency that sends rovers to Mars and makes us dream of the stars? They got owned by me. 
-I got a **Letter of Recognition (LOR)** straight from them.  
-But trust me, behind this tale lies weeks of madness, recon, scripts, insane bugs, and a whole lot of craziness.
-
+tags: [Bug bounty, NASA, Hacking]
 ---
 
-## My NASA Bug Hunt: A Dozen Vulnerabilities
+# How I Got a Letter of Recognition from NASA
 
-I found around **ten bugs** in their systems, stuff straight out of a movie. I’m talking about:
+A while back I found a handful of bugs in NASA's systems and ended up with a Letter of Recognition (LOR) from them. It took a few weeks of recon, a lot of scripting and way too much coffee. Here's how it went.
 
-- Accessing **sensitive APIs**
-- Leaking **locations of all NASA bases**
-- Employee personal data (**PII included**)
-- **Classified documents**, top-secret research marked as **reserved**
+## The bugs
 
-One of the craziest and simplest bugs?  
-A NASA site protected by **Basic Auth** , I bypassed it just by **tweaking the HTTP request header**.  
-No brute force. No magic. One crafted header, full access.
+I reported around ten issues in total. Some of the things I could reach:
 
----
+- sensitive APIs
+- the locations of NASA facilities
+- employee personal data, PII included
+- internal documents marked as reserved
 
-## The Bug That Earned Me the LOR
+The simplest one was a site protected by Basic Auth. I got past it just by changing a header in the HTTP request. No brute force, nothing fancy.
 
-This deserves its own spotlight.
+The one that got me the LOR was different, and it took a lot more work.
 
-I spent **a week** preparing the attack, days of recon, endless data review, until one day, buried in **10 GB of scraped data**, I found *the link*.  
-The one that wasn’t supposed to exist.
+## Recon
 
----
+I spent about a week on this before touching anything. Most of it was reading data.
 
-## How I Started: Recon Mode Activated
+**Subdomains.** I used crt.sh, subfinder and assetfinder. The list was huge.
 
-### 1. Subdomain Enumeration
+**Live hosts.** I ran everything through httpx-toolkit to see what was still up.
 
-Used:
-- [`crt.sh`](https://crt.sh/)
-- `subfinder`
-- `assetsfinder`
+**Links.** I did this in two ways. For the active part I used my own Scrapy-based tool, Reconspyder, plus directory fuzzing, page enumeration, gau and linkfinder. For the passive part I used the Wayback Machine.
 
-Found **endless amounts** of subdomains.
+## Why the Wayback Machine
 
-### 2. Liveness Check
+It stores snapshots of sites over time, which means you can see old versions of pages, files that have since been deleted, directories that used to be exposed and endpoints the developers forgot about.
 
-Used `httpx-toolkit` to check which domains were still active.
+I wrote a script to pull every archived URL for each domain. It came out to roughly 10 GB of data.
 
-### 3. Dual-Method Link Scraping
+## Going through the data
 
-- **Active method:**  
-  Tools like: , `Reconspyder`, built with `Scrapy`, and did:
-  - Directory fuzzing
-  - Page enumeration
-  - Analysis via `GAU`, `linkfinder` and more
+I grepped for the usual suspects: `password`, `user`, `admin`, `ID=`, `redirect=`, `next=`, `/admin`, `/login`, `/config`, API keys, SSH keys, `.env` files, and anything else that looked interesting.
 
-- **Passive method:**  
-  The secret sauce: **WayBackMachine**.
+Two days in, I stopped and asked myself how a NASA scientist would share internal data. The answer was probably FTP, so I grepped for that.
 
----
+One result looked like this:
 
-## What Is the WayBackMachine (And Why Hackers Should Use It)
+`airs****.company1.nasa.gov/user/data/ftp/`
 
-The **WayBackMachine** is basically a **time machine for the web**.  
-It archives snapshots of websites across time.  
-For hackers, it’s a **goldmine**:  
+## The page
 
-- See **old versions** of pages  
-- Access **deleted files**  
-- Find **once-exposed directories**  
-- Discover endpoints that devs forgot  
+Opening it gave me a warning saying the content was reserved for NASA employees and that unauthorized access was punishable under federal law.
 
-Using a custom script, I pulled **every archived link** from each domain.  
-The result: **~10 GB of files**.
+That wasn't the end of it. The Wayback Machine had cached a lot of links under the same path, like `airs***.company1.nasa.gov/user/data/ftp/project.hdf5`. They pointed to:
 
----
+- ongoing research projects
+- 3D models of satellites and rovers
+- geospatial datasets
+- scientific reports
+- internal project documentation
+- source code of internal tools
 
-## File Scanning and Thinking Outside the Box
-Grep was my best friend. At this point, my eyes were 90% links and 10% caffeine.
-I wrote a script to **grep everything**, targeting:
+None of it should have been public.
 
-- `password`, `user`, `admin`
-- `ID=` and other sensitive parameters
-- `redirect=`, `next=`, possible open redirects
-- `/admin`, `/login`, `/config`
-- API keys
-- SSH keys
-- `.env` files
-- And anything that screamed **vuln**
+## The report
 
-After 2 days, I had a thought:  
-> "What would a NASA scientist use to share internal data?"
+I put together a detailed report and sent it to NASA's bug bounty team. They rated it P3 and sent me the LOR.
 
----
+## What I took from it
 
-## FTP Discovery
+Recon matters more than any single trick. The Wayback Machine is underrated. Think about how the people who built the thing actually work. And write down everything you do, because you'll need it for the report.
 
-Yup: **FTP**.
-
-I grepped for `ftp`, and I found this gem:
-something similiar to this: airs****.company1.nasa.gov/user/data/ftp/
-
----
-
-## The Forbidden Page
-
-The page displayed this warning:
-
-> “You are not authorized to access this content. This section is reserved exclusively for NASA employees. Unauthorized access is strictly prohibited and punishable under federal laws.”
-
-Classic.
-
-But I wasn’t done.
-
----
-
-## Down the Rabbit Hole: Cached Treasures
-
-Digging deeper into WayBackMachine, I uncovered **tons of cached links** such as "airs***.company1.nasa.gov/user/data/ftp/project.hdf5 , all related to this domain:
-
-- Ongoing NASA **research projects**
-- **3D models** of satellites and rovers
-- **Geospatial datasets**
-- Confidential **scientific reports**
-- Internal **project documentation**
-- Source code of **proprietary tools**
-
-All just sitting there. Waiting to be seen.
-
----
-
-## Reporting the Bug and Receiving the LOR
-
-After gathering all my findings, I submitted a clean and detailed report to NASA’s bug bounty team.
-
-- **Severity:** P3  
-- **Result:** An **official Letter of Recognition** from the agency.
-
-Mission accomplished. ✅
-
----
-
-## Final Thoughts
-
-This adventure was a perfect blend of:
-
-- Curiosity  
-- Lateral thinking  
-- Automation  
-- Attention to detail  
-- A pinch of madness
-
-### Key Lessons:
-- Recon is king  
-- The **WayBackMachine** is an underrated weapon  
-- Think like the target  
-- And always, **always** document everything  
-
----
-
-Thanks for reading, hope you had fun! :)
-Happy hacking.
-
----
-
-
+Thanks for reading, and happy hacking.
