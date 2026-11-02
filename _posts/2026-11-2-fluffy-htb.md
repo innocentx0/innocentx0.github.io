@@ -237,7 +237,7 @@ Got a TGS for `winrm_svc`. Hashcat cracking (mode 13100) against rockyou failed,
 
 `p.agila` is in a group with GenericWrite over `winrm_svc`.
 
-we used pywhisker to generate a pfx certificate and be able to requuest a TGT.
+we used pywhisker to generate a pfx certificate and be able to request a TGT.
 ```
 pywhisker.py -d "fluffy.htb" -u "p.agila" -p "prometheuXXXX" --target "winrm_svc" --action "add"
 ```
